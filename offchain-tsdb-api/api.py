@@ -30,6 +30,33 @@ def get_db_connection():
     )
     return conn
 
+
+# Function to fetch all records from a specified table
+def fetch_all_records(table_name):
+    try:
+        # Connect to the database
+        conn = get_db_connection()
+        cursor = conn.cursor(cursor_factory=RealDictCursor)
+
+        # Prepare the query to fetch all records
+        query = f"SELECT * FROM {table_name}"
+
+        # Execute the query
+        cursor.execute(query)
+
+        # Fetch all results
+        records = cursor.fetchall()
+
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+
+        # Return the records as JSON
+        return jsonify(records), 200
+    except Exception as e:
+        # In case of an error, return the error message
+        return jsonify({"error": str(e)}), 500
+
 # Function to handle common parameter validation and querying
 def fetch_records(table_name, asset_id=None):
     try:
@@ -133,6 +160,11 @@ def get_pool_data():
             return jsonify({"error": "Invalid asset ID format."}), 400
 
     return fetch_records("pools_data", asset_id)
+
+# API route to get all records from a specified table
+@app.route('/api/interest_rate_model', methods=['GET'])
+def get_table_data():
+    return fetch_all_records("interest_rate_model")
 
 # Main function to run the Flask app
 if __name__ == '__main__':
