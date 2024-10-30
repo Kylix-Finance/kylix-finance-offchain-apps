@@ -51,6 +51,11 @@ def fetch_all_records(table_name):
         cursor.close()
         conn.close()
 
+        # Convert all values to numbers
+        for record in records:
+            for key, value in record.items():
+                record[key] = float(value)
+
         # Return the records as JSON
         return jsonify(records), 200
     except Exception as e:
