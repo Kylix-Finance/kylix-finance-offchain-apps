@@ -73,6 +73,17 @@ The API is written in Python and provides the following three endpoints:
     - `total_borrow`: Total borrow for the pool.
     - `total_supply`: Total supply for the pool.
 
+### 3. `/api/interest_rate_model`
+
+- **Method**: GET
+- **Parameters**:
+  - `NONE`
+
+- **Response**:
+  - A JSON array with the following fields:
+    - `utilization_rate` (integer): The ID of the asset.
+    - `supply_apy`: Borrow Annual Percentage Yield (APY) for the pool.
+    - `supply_apy`: Supply Annual Percentage Yield (APY) for the pool.
 
 ## Service app(TODO)
 ---
