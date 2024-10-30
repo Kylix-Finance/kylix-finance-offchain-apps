@@ -1,0 +1,38 @@
+# Create dashboard_kylix_token and dashboard_total_supply_borrow tables and populate them with data
+CREATE TABLE dashboard_total_supply_borrow(time BIGINT,total_supply BIGINT,total_borrow BIGINT );
+CREATE TABLE dashboard_kylix_token(time BIGINT,kylix_token BIGINT );
+SELECT create_hypertable('dashboard_total_supply_borrow', by_range('time'));
+SELECT create_hypertable('dashboard_kylix_token', by_range('time'));
+\COPY dashboard_total_supply_borrow FROM '/tmp/total_supply_borrow_mock.csv' CSV HEADER;
+\COPY dashboard_kylix_token FROM '/tmp/kylix_price_mock.csv' CSV HEADER;
+
+# # Create pools table and populate it with data
+CREATE TABLE pools (pool_id INT CHECK (pool_id > 0), asset_id INT CHECK (asset_id > 0), PRIMARY KEY (asset_id));
+INSERT INTO pools (pool_id, asset_id) VALUES 
+(1, 101), 
+(1, 102), 
+(2, 201);
+
+# Create pools_data table and populate it with data
+CREATE TABLE pools_data (
+    asset_id INT CHECK (asset_id > 0),  -- Use INT with a CHECK constraint for positive values
+    time BIGINT,                        -- Renamed from timestamp to time
+    total_borrow BIGINT CHECK (total_borrow > 0),  -- Changed to > 0
+    total_supply BIGINT CHECK (total_supply > 0),  -- Changed to > 0
+    PRIMARY KEY (asset_id, time),      -- Updated primary key to use 'time'
+    FOREIGN KEY (asset_id) REFERENCES pools(asset_id)  -- This references the assets table
+);
+SELECT create_hypertable('pools_data', by_range('time'));
+\COPY pools_data FROM '/tmp/pool_data_mock.csv' CSV HEADER;
+
+# Create interest_rate_model table and populate it with data
+CREATE TABLE interest_rate_model (
+    utilization_rate INT PRIMARY KEY,
+    borrow_apy DECIMAL(18, 17),
+    supply_apy DECIMAL(18, 17)
+);
+\COPY interest_rate_model FROM '/tmp/utilization_data.csv' CSV HEADER;
+
+# Tools
+\s -- For command history
+SELECT * FROM timescaledb_information.hypertables; -- For seeing hypertables
