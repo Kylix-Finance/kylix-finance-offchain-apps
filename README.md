@@ -81,7 +81,7 @@ The API is written in Python and provides the following three endpoints:
 
 - **Response**:
   - A JSON array with the following fields:
-    - `utilization_rate` (integer): The ID of the asset.
+    - `utilization_rate` : The utilization rate of the pool.
     - `supply_apy`: Borrow Annual Percentage Yield (APY) for the pool.
     - `supply_apy`: Supply Annual Percentage Yield (APY) for the pool.
 

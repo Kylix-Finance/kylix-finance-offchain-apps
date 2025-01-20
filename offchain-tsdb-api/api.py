@@ -32,14 +32,14 @@ def get_db_connection():
 
 
 # Function to fetch all records from a specified table
-def fetch_all_records(table_name):
+def fetch_all_records(table_name, order_criteria):
     try:
         # Connect to the database
         conn = get_db_connection()
         cursor = conn.cursor(cursor_factory=RealDictCursor)
 
         # Prepare the query to fetch all records
-        query = f"SELECT * FROM {table_name}"
+        query = f"SELECT * FROM {table_name} ORDER BY {order_criteria} ASC;"
 
         # Execute the query
         cursor.execute(query)
@@ -50,6 +50,11 @@ def fetch_all_records(table_name):
         # Close the cursor and connection
         cursor.close()
         conn.close()
+
+        # Convert all values to numbers
+        for record in records:
+            for key, value in record.items():
+                record[key] = float(value)
 
         # Return the records as JSON
         return jsonify(records), 200
@@ -164,7 +169,7 @@ def get_pool_data():
 # API route to get all records from a specified table
 @app.route('/api/interest_rate_model', methods=['GET'])
 def get_table_data():
-    return fetch_all_records("interest_rate_model")
+    return fetch_all_records("interest_rate_model","utilization_rate")
 
 # Main function to run the Flask app
 if __name__ == '__main__':
