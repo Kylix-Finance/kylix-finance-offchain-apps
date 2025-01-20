@@ -4,7 +4,8 @@ This repository contains the following components for Kylix-Finance:
 
 - **API**: Queries the TSDB (Time Series Database) and exposes the data in JSON format for the Frontend.
 - **Data Generation Scripts**: Facilitates the easy mocking of data for the TSDB.
-- **Service (TODO)**: Collects data from the node and inserts it into the TSDB.
+- **Data Offloader**: Collects data from the node and inserts it into the TSDB.
+- **SQL scripts**: SQL commands for the TSDB creation.
 
 ## API Endpoints
 
@@ -85,6 +86,18 @@ The API is written in Python and provides the following three endpoints:
     - `supply_apy`: Borrow Annual Percentage Yield (APY) for the pool.
     - `supply_apy`: Supply Annual Percentage Yield (APY) for the pool.
 
-## Service app(TODO)
+## Historical chain data offloader
+This Rust offloader connects to the node and reads important information, then inserts it into the TSDB.
+- it uses `subxt` to read block numbers and timestamps. it uses the kylix_metadata.scale file to know how to interpret chain metadata. Use the following commands to generate it:
+  - `cargo install subxt-cli`
+  - `subxt metadata --url="wss://<node_address>:443" -f bytes > kylix_metadata.scale`
+- it uses `json-rpsee` to make RPC calls to the node. It mainly uses the `lending_getLendingPools` RPC call to read the data
+- it uses `sqlx` to write the data to the TSDB
+- it needs two env variables to be set `NODE_URL` and `DATABASE_URL`
+
+It populates the following tables:
+- `pools_data`
+- `dashboard_total_supply_borrow`
+- `dashboard_kylix_token - TODO`
 ---
 
