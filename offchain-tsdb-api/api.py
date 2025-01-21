@@ -3,6 +3,7 @@ from flask_cors import CORS
 import psycopg2
 from psycopg2.extras import RealDictCursor
 import configparser
+import numpy as np
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -30,7 +31,6 @@ def get_db_connection():
     )
     return conn
 
-
 # Function to fetch all records from a specified table
 def fetch_all_records(table_name, order_criteria):
     try:
@@ -51,10 +51,11 @@ def fetch_all_records(table_name, order_criteria):
         cursor.close()
         conn.close()
 
-        # Convert all values to numbers
+        # Convert numeric values to strings without scientific notation
         for record in records:
             for key, value in record.items():
-                record[key] = float(value)
+                if isinstance(value, (int, float)):
+                    record[key] = np.format_float_positional(value, trim='-')
 
         # Return the records as JSON
         return jsonify(records), 200
@@ -130,9 +131,12 @@ def fetch_records(table_name, asset_id=None):
         # Select every nth record from the fetched results based on the step value
         filtered_records = records[::step]  # Take every nth record where n is step
 
-        # Return only the values from the records
-        result = [[record[key] for key in record] for record in filtered_records]
-
+        # Convert numeric values to strings without scientific notation
+        result = [
+            [np.format_float_positional(value, trim='-') if isinstance(value, (int, float)) else value for value in record.values()]
+            for record in filtered_records
+        ]
+ 
         # Return the result as a list of lists
         return jsonify(result), 200
     except Exception as e:
@@ -169,7 +173,7 @@ def get_pool_data():
 # API route to get all records from a specified table
 @app.route('/api/interest_rate_model', methods=['GET'])
 def get_table_data():
-    return fetch_all_records("interest_rate_model","utilization_rate")
+    return fetch_all_records("interest_rate_model", "utilization_rate")
 
 # Main function to run the Flask app
 if __name__ == '__main__':
